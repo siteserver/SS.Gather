@@ -114,7 +114,7 @@ var methods = {
   },
 
   btnPreviousClick: function () {
-    var pageType = '';
+    var pageType = $typeBase;
     if (this.pageType === $typeList) {
       pageType = $typeBase;
     } else if (this.pageType === $typeContent) {
