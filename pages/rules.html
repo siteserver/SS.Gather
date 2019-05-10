@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <title>SiteServer 管理后台</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link href="../assets/css/font-awesome-4.7.0.min.css" rel="stylesheet" type="text/css" />
+  <link href="../assets/css/bootstrap-4.1.0.min.css" rel="stylesheet" type="text/css" />
+  <link href="../assets/css/siteserver-1.0.7.min.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+  <div id="main" class="m-2">
+    <template v-if="pageLoad">
+
+      <div class="card-box">
+        <div class="m-t-0 header-title">
+          采集规则管理
+        </div>
+        <p class="text-muted font-13 m-b-25"></p>
+
+        <hr />
+
+        <table class="table tablesaw table-hover m-0">
+          <thead>
+            <tr class="thead">
+              <th>采集规则名称 </th>
+              <th>采集网址 </th>
+              <th>最近一次采集时间</th>
+              <th width="160" class="text-center">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr v-for="ruleInfo in ruleInfoList">
+              <td class="text-nowrap">
+                {{ ruleInfo.gatherRuleName }}
+              </td>
+              <td class="text-nowrap">
+                {{ ruleInfo.gatherUrl }}
+              </td>
+              <td class="text-nowrap">
+                {{ ruleInfo.lastGatherDate }}
+              </td>
+              <td class="text-center text-nowrap">
+                <a href="javascript:;" v-on:click="btnTestClick(ruleInfo)" class="btn btn-sm">测试</a>
+                <a href="javascript:;" v-on:click="btnGatherClick(ruleInfo)" class="btn btn-sm text-primary">开始采集</a>
+                <a href="javascript:;" v-on:click="btnEditClick(ruleInfo)" class="btn btn-sm">编辑</a>
+                <a href="javascript:;" v-on:click="btnCopyClick(ruleInfo)" class="btn btn-sm">复制</a>
+                <a href="javascript:;" v-on:click="btnDeleteClick(ruleInfo)" class="btn btn-sm text-danger">删除</a>
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+
+        <hr />
+
+        <a href="javascript:;" class="btn btn-primary m-r-5" v-on:click="btnAddClick()">添加信息采集</a>
+
+      </div>
+
+    </template>
+    <template v-else>
+      <div class="text-center" style="margin-top: 100px">
+        <img class="mt-3" src="../assets/images/loading.gif" />
+        <p class="lead mt-3 text-nowrap">载入中，请稍后...</p>
+      </div>
+    </template>
+  </div>
+</body>
+
+</html>
+<script src="../assets/lib/es6-promise.auto.min.js"></script>
+<script src="../assets/lib/axios-0.18.0.min.js"></script>
+<script src="../assets/lib/jquery-1.9.1.min.js"></script>
+<script src="../assets/lib/layer/layer-3.1.1.js"></script>
+<script src="../assets/lib/vue-2.6.10.min.js" type="text/javascript"></script>
+
+<script src="../assets/lib/sweetalert2-7.28.4.all.min.js" type="text/javascript"></script>
+<script src="../assets/js/swal2.js" type="text/javascript"></script>
+
+<script src="../assets/js/utils.js" type="text/javascript"></script>
+<script src="rules.js" type="text/javascript"></script>

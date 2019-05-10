@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html class="bg-white">
+
+<head>
+  <meta charset="utf-8" />
+  <title>SiteServer 管理后台</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link href="../assets/css/font-awesome-4.7.0.min.css" rel="stylesheet" type="text/css" />
+  <link href="../assets/css/bootstrap-4.1.0.min.css" rel="stylesheet" type="text/css" />
+  <link href="../assets/css/siteserver-1.0.7.min.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body class="bg-white p-0">
+  <div id="main" class="m-2">
+
+    <div
+      v-if="pageAlert"
+      class="alert"
+      :class="{ 'alert-warning': pageAlert.type === 'warning', 'alert-primary': pageAlert.type === 'primary', 'alert-success': pageAlert.type === 'success', 'alert-danger': pageAlert.type === 'danger' }">
+      <button
+        v-on:click="pageAlert = null"
+        class="close"
+        data-dismiss="alert">
+        ×
+      </button>
+      <span v-html="pageAlert.html"></span>
+    </div>
+
+    <template v-if="pageGather">
+      <div class="ml-2 mr-2">
+
+        <template v-if="cache.status === 'success'">
+          <div class="alert text-center">
+            <img src="../assets/images/success.svg" width="80" height="80" class="m-2">
+            <h4 class="alert-heading mt-3 text-primary">{{cache.message}}</h4>
+          </div>
+        </template>
+
+        <template v-else-if="cache.status === 'failure'">
+          <div class="alert text-center">
+            <img src="../assets/images/failure.svg" width="80" height="80" class="m-2">
+            <h4 class="alert-heading mt-3 text-danger">{{cache.message}}</h4>
+          </div>
+        </template>
+
+        <template v-else>
+          <div class="m-5 text-center">
+            <div class="progress" style="height: 25px;">
+              <div class="progress-bar" :style="{width: percentage}" style="font-size: 16px">{{percentage}}</div>
+            </div>
+            <h4 v-if="cache.totalCount > 0" class="alert-heading mt-2">
+              共获取到 <strong>{{cache.totalCount}}</strong> 篇内容，成功采集到 <strong>{{cache.successCount}}</strong> 篇内容
+            </h4>
+            <h4 v-if="cache.isSuccess" class="alert-heading mt-2 text-primary">{{cache.message}}</h4>
+            <h4 v-else class="alert-heading mt-2 text-danger">{{cache.message}}</h4>
+          </div>
+        </template>
+
+        <div v-if="cache.failureMessages && cache.failureMessages.length > 0" class="text-center" style="max-height: 300px; overflow-y: auto;">
+          <h4 class="alert-heading mt-2 text-danger">采集失败记录</h4>
+          <hr />
+          <small v-for="failureMessage in cache.failureMessages" class="text-danger mx-3">{{failureMessage}}</small>
+        </div>
+      
+        <hr />
+      
+        <div class="text-right mr-1">
+          <button type="button" class="btn btn-default m-l-5" onclick="window.parent.layer.closeAll()">关 闭</button>
+        </div>
+      
+      </div>
+    </template>
+
+    <template v-else-if="pageLoad">
+
+      <div class="form-group">
+        <label>
+          采集到栏目
+          <small v-show="errors.has('channelId')" class="text-danger">
+            {{ errors.first('channelId') }}
+          </small>
+        </label>
+        <select v-model="channelId" key="channelId" name="channelId" class="form-control" data-vv-as="采集到栏目" v-validate="'required|excluded:0'" :class="{'is-invalid': errors.has('channelId') }">
+          <option v-for="channel in channels" :key="channel.key" :value="channel.key">{{ channel.value }}</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>
+          采集内容数
+          <small v-show="errors.has('gatherNum')" class="text-danger">
+          {{ errors.first('gatherNum') }}
+          </small>
+        </label>
+        <input v-model="gatherNum" name="gatherNum" data-vv-as="采集内容数" v-validate="'numeric'" :class="{'is-invalid': errors.has('gatherNum') }" class="form-control" />
+        <small>需要采集的内容数，0代表采集所有内容</small>
+      </div>
+
+      <div class="form-group">
+        <label class="col-form-label">
+          采集网址规则
+        </label>
+        <div>
+          <span class="ml-2 checkbox checkbox-primary">
+            <input id="gatherUrlIsCollection" v-model="gatherUrlIsCollection" type="checkbox">
+            <label for="gatherUrlIsCollection">从指定网址</label>
+          </span>
+          <span class="ml-2 checkbox checkbox-primary">
+            <input id="gatherUrlIsSerialize" v-model="gatherUrlIsSerialize" type="checkbox">
+            <label for="gatherUrlIsSerialize">从序列相似网址</label>
+          </span>
+        </div>
+      </div>
+
+      <template v-if="gatherUrlIsCollection">
+        <div class="form-group">
+          <label >
+            指定采集网址
+            <small v-show="errors.has('gatherUrlCollection')" class="text-danger">
+              {{ errors.first('gatherUrlCollection') }}
+            </small>
+          </label>
+          <textarea v-model="gatherUrlCollection" key="gatherUrlCollection" name="gatherUrlCollection" data-vv-as="指定采集网址" v-validate="'required'" :class="{'is-invalid': errors.has('gatherUrlCollection') }" rows="5" class="form-control"></textarea>
+          <small>多个网址以换行符分割</small>
+        </div>
+        <hr />
+      </template>
+
+      <template v-if="gatherUrlIsSerialize">
+        <div class="form-group">
+          <label >
+            序列相似网址
+            <a href="javascript:;" class="ml-2 btn btn-outline-primary btn-sm" @click="insert('gatherUrlSerialize', '*')">插入 * 通配符</a>
+            <small v-show="errors.has('gatherUrlSerialize')" class="text-danger">
+              {{ errors.first('gatherUrlSerialize') }}
+            </small>
+          </label>
+          <input v-model="gatherUrlSerialize" ref="gatherUrlSerialize" key="gatherUrlSerialize" id="gatherUrlSerialize" name="gatherUrlSerialize" data-vv-as="序列相似网址" v-validate="'required'" :class="{'is-invalid': errors.has('gatherUrlSerialize') }"
+            type="text" class="form-control" />
+          <small>序列相似网址必须包含 * 通配符，代表变动数字</small>
+
+          <div class="form-row mt-2">
+            <div class="col-auto">
+              变动数字范围：从
+              <small v-show="errors.has('serializeFrom')" class="text-danger">
+                {{ errors.first('serializeFrom') }}
+              </small>
+            </div>
+            <div class="col-auto">
+              <input v-model="serializeFrom" ref="serializeFrom" key="serializeFrom" id="serializeFrom" name="serializeFrom" data-vv-as="变动数字范围" v-validate="'required|numeric'" :class="{'is-invalid': errors.has('serializeFrom') }" type="text" class="form-control  form-control-sm">
+            </div>
+            <div class="col-auto">
+              到
+              <small v-show="errors.has('serializeTo')" class="text-danger">
+                {{ errors.first('serializeTo') }}
+              </small>
+            </div>
+            <div class="col-auto">
+              <input v-model="serializeTo" ref="serializeTo" key="serializeTo" id="serializeTo" name="serializeTo" data-vv-as="变动数字范围" v-validate="'required|numeric|min_value:1'" :class="{'is-invalid': errors.has('serializeTo') }" type="text" class="form-control  form-control-sm">
+            </div>
+            <div class="col-auto">
+              数字变动倍数：
+              <small v-show="errors.has('serializeInterval')" class="text-danger">
+                {{ errors.first('serializeInterval') }}
+              </small>
+            </div>
+            <div class="col-auto">
+                <input v-model="serializeInterval" ref="serializeInterval" key="serializeInterval" id="serializeInterval" name="serializeInterval" data-vv-as="数字变动倍数" v-validate="'required|numeric|min_value:1'" :class="{'is-invalid': errors.has('serializeInterval') }" type="text" class="form-control  form-control-sm">
+            </div>
+            <div class="col-auto">
+              <span class="ml-2 checkbox checkbox-primary">
+                <input id="serializeIsOrderByDesc" v-model="serializeIsOrderByDesc" type="checkbox">
+                <label for="serializeIsOrderByDesc">倒序</label>
+              </span>
+              <span class="ml-2 checkbox checkbox-primary">
+                <input id="serializeIsAddZero" v-model="serializeIsAddZero" type="checkbox">
+                <label for="serializeIsAddZero">补零</label>
+              </span>
+            </div>
+          </div>
+
+        </div>
+        <hr />
+      </template>
+
+      <div class="form-group">
+        <label class="col-form-label">
+          内容地址包含
+          <a href="javascript:;" class="ml-2 btn btn-outline-primary btn-sm" @click="insert('urlInclude', '*')">插入 * 通配符</a>
+          <a href="javascript:;" class="btn btn-outline-primary btn-sm" @click="insert('urlInclude', '|')">插入 | 通配符</a>
+          <small v-show="errors.has('urlInclude')" class="text-danger">
+            {{ errors.first('urlInclude') }}
+          </small>
+        </label>
+        <textarea v-model="urlInclude" ref="urlInclude" key="urlInclude" id="urlInclude" name="urlInclude" data-vv-as="内容地址包含" v-validate="'required'" :class="{'is-invalid': errors.has('urlInclude') }" rows="5" class="form-control"></textarea>
+        <small>遇到变动字符请 <span class="text-primary">插入*通配符</span>，多个条件请 <span class="text-primary">插入|通配符</span></small>
+      </div>
+
+      <hr />
+
+      <div class="text-right mr-1">
+        <button type="button" class="btn btn-primary mr-2" @click="btnSubmitClick">开始采集</a>
+        <button type="button" class="btn btn-default" @click="btnCancelClick">取 消</button>
+      </div>
+
+    </template>
+    
+    <template v-else>
+      <div class="text-center" style="margin-top: 60px">
+        <img class="mt-3" src="../assets/images/loading.gif" />
+        <p class="lead mt-3 text-nowrap">载入中，请稍后...</p>
+      </div>
+    </template>
+  </div>
+</body>
+
+</html>
+<script src="../assets/lib/es6-promise.auto.min.js"></script>
+<script src="../assets/lib/axios-0.18.0.min.js"></script>
+<script src="../assets/lib/jquery-1.9.1.min.js"></script>
+<script src="../assets/lib/layer/layer-3.1.1.js"></script>
+<script src="../assets/lib/vue-2.6.10.min.js" type="text/javascript"></script>
+
+<script src="../assets/lib/vee-validate/vee-validate-2.2.2.js"></script>
+<script src="../assets/lib/vee-validate/locale/zh_CN-2.2.2.js"></script>
+<script src="../assets/js/validate.js" type="text/javascript"></script>
+
+<script src="../assets/lib/sweetalert2-7.28.4.all.min.js" type="text/javascript"></script>
+<script src="../assets/js/swal2.js" type="text/javascript"></script>
+
+<script src="../assets/js/utils.js" type="text/javascript"></script>
+<script src="rulesLayerGather.js" type="text/javascript"></script>
