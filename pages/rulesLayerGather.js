@@ -64,7 +64,9 @@ var methods = {
       }
       
       if ($this.cache.status === 'progress') {
-        $this.apiGetStatus();
+        setTimeout(function() {
+          $this.apiGetStatus();
+        }, 1000);
       }
     }).catch(function (error) {
       $this.pageAlert = utils.getPageAlert(error);
