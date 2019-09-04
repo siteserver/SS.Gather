@@ -1,5 +1,5 @@
 var $api = axios.create({
-  baseURL: utils.getQueryString('apiUrl') + '/' + utils.getQueryString('pluginId') + '/pages/rulesLayerGather/',
+  baseURL: utils.getQueryString('apiUrl') + '/' + utils.getQueryString('pluginId') + '/pages/rulesLayerChannels/',
   withCredentials: true,
   params: {
     siteId: utils.getQueryInt('siteId'),

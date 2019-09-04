@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
 using SiteServer.Plugin;
@@ -8,8 +7,8 @@ using SS.Gather.Core;
 
 namespace SS.Gather.Controllers.Pages
 {
-    [RoutePrefix("pages/rulesLayerGather")]
-    public class RulesLayerGatherController : ApiController
+    [RoutePrefix("pages/rulesLayerChannels")]
+    public class RulesLayerChannelsController : ApiController
     {
         private const string Route = "";
         private const string RouteActionsGather = "actions/gather";
@@ -98,7 +97,7 @@ namespace SS.Gather.Controllers.Pages
         }
 
         [HttpPost, Route(RouteActionsGather)]
-        public IHttpActionResult Gather()
+        public async Task<IHttpActionResult> Gather()
         {
             try
             {
@@ -117,7 +116,8 @@ namespace SS.Gather.Controllers.Pages
 
                 var adminInfo = Context.AdminApi.GetAdminInfoByUserId(request.AdminId);
 
-                Task.Run(() => GatherUtility.Gather(adminInfo, siteId, ruleId, guid)).ConfigureAwait(false).GetAwaiter();
+                //Task.Run(async () => await Main.GatherRuleRepository.GatherListAsync(adminInfo, siteId, ruleId, guid, false)).ConfigureAwait(false).GetAwaiter();
+                await Main.GatherRuleRepository.GatherChannelsAsync(adminInfo, siteId, ruleId, guid, false);
 
                 return Ok(new
                 {

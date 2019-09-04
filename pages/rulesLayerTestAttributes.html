@@ -30,76 +30,29 @@
 
       <div class="form-group row">
         <div class="col-auto">
-          <label class="mt-1">
-            采集地址
-          </label>
-        </div>
-        <div class="col-auto">
-          <select v-model="listUrl" v-for="gatherUrl in gatherUrls" :key="gatherUrl" class="form-control">
-            <option :value="gatherUrl">{{gatherUrl}}</option>
-          </select>
-        </div>
-        <div class="col-auto">
-          <button type="button" class="btn btn-outline-primary" @click="btnGetContentUrls">获取链接</button>
+          <a :href="url" target="_blank">
+            {{url}}
+          </a>
         </div>
       </div>
 
-      <template v-if="contentUrls && contentUrls.length > 0">
-        <hr />
+      <template v-if="url && attributeList && attributeList.length > 0">
 
-        <div v-if="attributeList" class="row">
-            <div class="col-lg-6 col-xs-12">
-                <table class="table table-noborder table-hover">
-                  <tbody>
-                    <tr v-for="url in contentUrls" :key="url" :class="{'table-warning': contentUrl === url}">
-                      <td>
-                        <a :href="url" target="_blank">
-                          {{url}}
-                        </a>
-                      </td>
-                      <td>
-                        <button type="button" class="btn btn-sm btn-outline-primary" @click="btnGetContent(url)">
-                          获取内容
-                        </button>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <div class="col-lg-6 col-xs-12">
-                  <table v-if="attributeList" class="table table-noborder table-hover">
-                    <tbody>
-                      <tr v-for="attribute in attributeList" :key="attribute">
-                        <td>
-                          {{attribute.key}}
-                        </td>
-                        <td v-html="attribute.value"></td>
-                      </tr>
-                    </tbody>
-                  </table>
-              </div>
-        </div>
-
-        <div v-else class="row">
+        <div class="row">
             <div class="col-12">
                 <table class="table table-noborder table-hover">
                   <tbody>
-                    <tr v-for="url in contentUrls" :key="url" :class="{'table-warning': contentUrl === url}">
+                    <tr v-for="attribute in attributeList" :key="attribute">
                       <td>
-                        <a :href="url" target="_blank">
-                          {{url}}
-                        </a>
+                        {{attribute.key}}
                       </td>
-                      <td>
-                        <button type="button" class="btn btn-sm btn-outline-primary" @click="btnGetContent(url)">
-                          获取内容
-                        </button>
-                      </td>
+                      <td v-html="attribute.value"></td>
                     </tr>
                   </tbody>
                 </table>
-              </div>
+            </div>
         </div>
+
       </template>
 
       <hr />
@@ -133,4 +86,4 @@
 <script src="../assets/js/swal2.js" type="text/javascript"></script>
 
 <script src="../assets/js/utils.js" type="text/javascript"></script>
-<script src="rulesLayerTest.js" type="text/javascript"></script>
+<script src="rulesLayerTestAttributes.js" type="text/javascript"></script>

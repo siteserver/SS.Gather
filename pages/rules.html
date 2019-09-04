@@ -26,9 +26,9 @@
         <table class="table tablesaw table-hover m-0">
           <thead>
             <tr class="thead">
-              <th>采集规则名称 </th>
+              <th>采集规则 </th>
               <th>采集网址 </th>
-              <th>最近一次采集时间</th>
+              <th>最近采集时间</th>
               <th width="160" class="text-center">操作</th>
             </tr>
           </thead>
@@ -46,7 +46,8 @@
               </td>
               <td class="text-center text-nowrap">
                 <a href="javascript:;" v-on:click="btnTestClick(ruleInfo)" class="btn btn-sm">测试</a>
-                <a href="javascript:;" v-on:click="btnGatherClick(ruleInfo)" class="btn btn-sm text-primary">开始采集</a>
+                <a href="javascript:;" v-on:click="btnChannelsClick(ruleInfo)" class="btn btn-sm text-primary">列表采集</a>
+                <a href="javascript:;" v-on:click="btnContentsClick(ruleInfo)" class="btn btn-sm text-primary">单页采集</a>
                 <a href="javascript:;" v-on:click="btnEditClick(ruleInfo)" class="btn btn-sm">编辑</a>
                 <a href="javascript:;" v-on:click="btnCopyClick(ruleInfo)" class="btn btn-sm">复制</a>
                 <a href="javascript:;" v-on:click="btnDeleteClick(ruleInfo)" class="btn btn-sm text-danger">删除</a>

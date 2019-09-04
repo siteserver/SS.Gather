@@ -111,6 +111,8 @@ namespace SS.Gather.Core
 
         public bool IsSetFirstImageAsImageUrl { get; set; }
 
+        public bool IsSaveFiles { get; set; }
+
         public bool IsEmptyContentAllowed { get; set; }
 
         public bool IsSameTitleAllowed { get; set; }

@@ -66,10 +66,17 @@ var methods = {
     });
   },
 
-  btnGatherClick: function (ruleInfo) {
+  btnChannelsClick: function (ruleInfo) {
     utils.openLayer({
-      url: utils.getPageUrl('rulesLayerGather.html') + '&ruleId=' + ruleInfo.id,
-      title: '开始采集'
+      url: utils.getPageUrl('rulesLayerChannels.html') + '&ruleId=' + ruleInfo.id,
+      title: '列表采集'
+    });
+  },
+
+  btnContentsClick: function (ruleInfo) {
+    utils.openLayer({
+      url: utils.getPageUrl('rulesLayerContents.html') + '&ruleId=' + ruleInfo.id,
+      title: '单页采集'
     });
   },
 

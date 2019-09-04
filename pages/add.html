@@ -21,9 +21,35 @@
         </div>
         <p class="text-muted font-13 m-b-25"></p>
 
-        <div v-if="pageProgress" class="progress progress-md m-b-20">
-          <div class="progress-bar" :style="{width: pageProgress}">{{pageProgress}}</div>
-        </div>
+        <ul class="nav nav-tabs tabs-bordered nav-justified">
+          <li class="nav-item">
+            <a href="javascript:;" class="nav-link" :class="{active : pageType === $typeBase}">
+              基本属性
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="javascript:;" class="nav-link" :class="{active : pageType === $typeList}">
+              采集网址
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="javascript:;" class="nav-link" :class="{active : pageType === $typeContent}">
+              标题及正文
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="javascript:;" class="nav-link" :class="{active : pageType === $typeColumns}">
+              可选字段
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="javascript:;" class="nav-link" :class="{active : pageType === $typeAdvanced}">
+              其他选填项
+            </a>
+          </li>
+        </ul>
+
+        <div class="mt-3"></div>
 
         <div
           v-if="pageAlert"
@@ -86,8 +112,8 @@
             <div class="form-group">
               <label>内容图片</label>
               <select v-model="ruleInfo.isSaveImage" class="form-control">
-                <option :value="false">下载图片</option>
-                <option :value="true">不下载图片</option>
+                <option :value="true">下载图片</option>
+                <option :value="false">不下载图片</option>
               </select>
               <small>设置是否下载所采集内容的图片到服务器中</small>
             </div>
@@ -95,33 +121,42 @@
             <div class="form-group">
               <label>封面图片</label>
               <select v-model="ruleInfo.isSetFirstImageAsImageUrl" class="form-control">
-                <option :value="false">设置封面图片</option>
-                <option :value="true">不设置封面图片</option>
+                <option :value="true">设置封面图片</option>
+                <option :value="false">不设置封面图片</option>
               </select>
               <small>设置是否将内容正文中的首幅图片设为内容的封面图片</small>
             </div>
 
             <div class="form-group">
+              <label>内容附件</label>
+              <select v-model="ruleInfo.isSaveFiles" class="form-control">
+                <option :value="true">下载附件</option>
+                <option :value="false">不下载附件</option>
+              </select>
+              <small>设置是否下载所采集内容的附件到服务器中</small>
+            </div>
+
+            <div class="form-group">
               <label>当内容为空时是否采集</label>
               <select v-model="ruleInfo.isEmptyContentAllowed" class="form-control">
-                <option :value="false">采集</option>
-                <option :value="true">不采集</option>
+                <option :value="true">采集</option>
+                <option :value="false">不采集</option>
               </select>
             </div>
 
             <div class="form-group">
               <label>当内容标题重复时是否采集</label>
               <select v-model="ruleInfo.isSameTitleAllowed" class="form-control">
-                <option :value="false">采集</option>
-                <option :value="true">不采集</option>
+                <option :value="true">采集</option>
+                <option :value="false">不采集</option>
               </select>
             </div>
 
             <div class="form-group">
               <label>采集内容的审核状态</label>
               <select v-model="ruleInfo.isChecked" class="form-control">
-                <option :value="false">待审核</option>
                 <option :value="true">审核通过</option>
+                <option :value="false">待审核</option>
               </select>
               <small>采集的内容是否不经过审核直接添加到栏目中</small>
             </div>
@@ -180,7 +215,7 @@
                     {{ errors.first('ruleInfo.gatherUrlSerialize') }}
                   </small>
                 </label>
-                <input v-model="ruleInfo.gatherUrlSerialize" ref="gatherUrlSerialize" key="gatherUrlSerialize" id="gatherUrlSerialize" name="gatherUrlSerialize" data-vv-as="序列相似网址" v-validate="'required'" :class="{'is-invalid': errors.has('ruleInfo.gatherUrlSerialize') }"
+                <input v-model="ruleInfo.gatherUrlSerialize" key="gatherUrlSerialize" id="gatherUrlSerialize" name="gatherUrlSerialize" data-vv-as="序列相似网址" v-validate="'required'" :class="{'is-invalid': errors.has('ruleInfo.gatherUrlSerialize') }"
                   type="text" class="form-control" />
                 <small>序列相似网址必须包含 * 通配符，代表变动数字</small>
 
@@ -192,7 +227,7 @@
                     </small>
                   </div>
                   <div class="col-auto">
-                    <input v-model="ruleInfo.serializeFrom" ref="serializeFrom" key="serializeFrom" id="serializeFrom" name="serializeFrom" data-vv-as="变动数字范围" v-validate="'required|numeric'" :class="{'is-invalid': errors.has('ruleInfo.serializeFrom') }" type="text" class="form-control  form-control-sm">
+                    <input v-model="ruleInfo.serializeFrom" key="serializeFrom" id="serializeFrom" name="serializeFrom" data-vv-as="变动数字范围" v-validate="'required|numeric'" :class="{'is-invalid': errors.has('ruleInfo.serializeFrom') }" type="text" class="form-control  form-control-sm">
                   </div>
                   <div class="col-auto">
                     到
@@ -201,7 +236,7 @@
                     </small>
                   </div>
                   <div class="col-auto">
-                    <input v-model="ruleInfo.serializeTo" ref="serializeTo" key="serializeTo" id="serializeTo" name="serializeTo" data-vv-as="变动数字范围" v-validate="'required|numeric|min_value:1'" :class="{'is-invalid': errors.has('ruleInfo.serializeTo') }" type="text" class="form-control  form-control-sm">
+                    <input v-model="ruleInfo.serializeTo" key="serializeTo" id="serializeTo" name="serializeTo" data-vv-as="变动数字范围" v-validate="'required|numeric|min_value:1'" :class="{'is-invalid': errors.has('ruleInfo.serializeTo') }" type="text" class="form-control  form-control-sm">
                   </div>
                   <div class="col-auto">
                     数字变动倍数：
@@ -210,7 +245,7 @@
                     </small>
                   </div>
                   <div class="col-auto">
-                      <input v-model="ruleInfo.serializeInterval" ref="serializeInterval" key="serializeInterval" id="serializeInterval" name="serializeInterval" data-vv-as="数字变动倍数" v-validate="'required|numeric|min_value:1'" :class="{'is-invalid': errors.has('ruleInfo.serializeInterval') }" type="text" class="form-control  form-control-sm">
+                      <input v-model="ruleInfo.serializeInterval" key="serializeInterval" id="serializeInterval" name="serializeInterval" data-vv-as="数字变动倍数" v-validate="'required|numeric|min_value:1'" :class="{'is-invalid': errors.has('ruleInfo.serializeInterval') }" type="text" class="form-control  form-control-sm">
                   </div>
                   <div class="col-auto">
                     <span class="ml-2 checkbox checkbox-primary">
@@ -237,7 +272,7 @@
                   {{ errors.first('ruleInfo.urlInclude') }}
                 </small>
               </label>
-              <textarea v-model="ruleInfo.urlInclude" ref="urlInclude" key="urlInclude" id="urlInclude" name="urlInclude" data-vv-as="内容地址包含" v-validate="'required'" :class="{'is-invalid': errors.has('ruleInfo.urlInclude') }" rows="5" class="form-control"></textarea>
+              <textarea v-model="ruleInfo.urlInclude" key="urlInclude" id="urlInclude" name="urlInclude" data-vv-as="内容地址包含" v-validate="'required'" :class="{'is-invalid': errors.has('ruleInfo.urlInclude') }" rows="5" class="form-control"></textarea>
               <small>遇到变动字符请 <span class="text-primary">插入*通配符</span>，多个条件请 <span class="text-primary">插入|通配符</span></small>
             </div>
 
@@ -255,7 +290,7 @@
                   {{ errors.first('ruleInfo.contentTitleStart') }}
                 </small>
               </label>
-              <textarea v-model="ruleInfo.contentTitleStart" ref="contentTitleStart" key="contentTitleStart" id="contentTitleStart" name="contentTitleStart" data-vv-as="内容标题开始" v-validate="'required'" :class="{'is-invalid': errors.has('ruleInfo.contentTitleStart') }" rows="5" class="form-control"></textarea>
+              <textarea v-model="ruleInfo.contentTitleStart" key="contentTitleStart" id="contentTitleStart" name="contentTitleStart" data-vv-as="内容标题开始" v-validate="'required'" :class="{'is-invalid': errors.has('ruleInfo.contentTitleStart') }" rows="5" class="form-control"></textarea>
               <small>遇到变动字符请 <span class="text-primary">插入*通配符</span>，多个条件请 <span class="text-primary">插入|通配符</span></small>
             </div>
 
@@ -268,7 +303,7 @@
                   {{ errors.first('ruleInfo.contentTitleEnd') }}
                 </small>
               </label>
-              <textarea v-model="ruleInfo.contentTitleEnd" ref="contentTitleEnd" key="contentTitleEnd" id="contentTitleEnd" name="contentTitleEnd" data-vv-as="内容标题结束" v-validate="'required'" :class="{'is-invalid': errors.has('ruleInfo.contentTitleEnd') }" rows="5" class="form-control"></textarea>
+              <textarea v-model="ruleInfo.contentTitleEnd" key="contentTitleEnd" id="contentTitleEnd" name="contentTitleEnd" data-vv-as="内容标题结束" v-validate="'required'" :class="{'is-invalid': errors.has('ruleInfo.contentTitleEnd') }" rows="5" class="form-control"></textarea>
               <small>遇到变动字符请 <span class="text-primary">插入*通配符</span>，多个条件请 <span class="text-primary">插入|通配符</span></small>
             </div>
 
@@ -281,7 +316,7 @@
                   {{ errors.first('ruleInfo.contentContentStart') }}
                 </small>
               </label>
-              <textarea v-model="ruleInfo.contentContentStart" ref="contentContentStart" key="contentContentStart" id="contentContentStart" name="contentContentStart" data-vv-as="内容正文开始" v-validate="'required'" :class="{'is-invalid': errors.has('ruleInfo.contentContentStart') }" rows="5" class="form-control"></textarea>
+              <textarea v-model="ruleInfo.contentContentStart" key="contentContentStart" id="contentContentStart" name="contentContentStart" data-vv-as="内容正文开始" v-validate="'required'" :class="{'is-invalid': errors.has('ruleInfo.contentContentStart') }" rows="5" class="form-control"></textarea>
               <small>遇到变动字符请 <span class="text-primary">插入*通配符</span>，多个条件请 <span class="text-primary">插入|通配符</span></small>
             </div>
 
@@ -294,7 +329,7 @@
                   {{ errors.first('ruleInfo.contentContentEnd') }}
                 </small>
               </label>
-              <textarea v-model="ruleInfo.contentContentEnd" ref="contentContentEnd" key="contentContentEnd" id="contentContentEnd" name="contentContentEnd" data-vv-as="内容正文结束" v-validate="'required'" :class="{'is-invalid': errors.has('ruleInfo.contentContentEnd') }" rows="5" class="form-control"></textarea>
+              <textarea v-model="ruleInfo.contentContentEnd" key="contentContentEnd" id="contentContentEnd" name="contentContentEnd" data-vv-as="内容正文结束" v-validate="'required'" :class="{'is-invalid': errors.has('ruleInfo.contentContentEnd') }" rows="5" class="form-control"></textarea>
               <small>遇到变动字符请 <span class="text-primary">插入*通配符</span>，多个条件请 <span class="text-primary">插入|通配符</span></small>
             </div>
 
@@ -304,7 +339,7 @@
                 <a href="javascript:;" class="ml-2 btn btn-outline-primary btn-sm" @click="insert('contentContentStart2', '*')">插入 * 通配符</a>
                 <a href="javascript:;" class="btn btn-outline-primary btn-sm" @click="insert('contentContentStart2', '|')">插入 | 通配符</a>
               </label>
-              <textarea v-model="ruleInfo.contentContentStart2" ref="contentContentStart2" key="contentContentStart2" id="contentContentStart2" name="contentContentStart2" data-vv-as="内容正文开始2" rows="5" class="form-control"></textarea>
+              <textarea v-model="ruleInfo.contentContentStart2" key="contentContentStart2" id="contentContentStart2" name="contentContentStart2" data-vv-as="内容正文开始2" rows="5" class="form-control"></textarea>
               <small>遇到变动字符请 <span class="text-primary">插入*通配符</span>，多个条件请 <span class="text-primary">插入|通配符</span></small>
             </div>
 
@@ -314,7 +349,7 @@
                 <a href="javascript:;" class="ml-2 btn btn-outline-primary btn-sm" @click="insert('contentContentEnd2', '*')">插入 * 通配符</a>
                 <a href="javascript:;" class="btn btn-outline-primary btn-sm" @click="insert('contentContentEnd2', '|')">插入 | 通配符</a>
               </label>
-              <textarea v-model="ruleInfo.contentContentEnd2" ref="contentContentEnd2" key="contentContentEnd2" id="contentContentEnd2" name="contentContentEnd2" data-vv-as="内容正文结束2" rows="5" class="form-control"></textarea>
+              <textarea v-model="ruleInfo.contentContentEnd2" key="contentContentEnd2" id="contentContentEnd2" name="contentContentEnd2" data-vv-as="内容正文结束2" rows="5" class="form-control"></textarea>
               <small>遇到变动字符请 <span class="text-primary">插入*通配符</span>，多个条件请 <span class="text-primary">插入|通配符</span></small>
             </div>
 
@@ -324,7 +359,7 @@
                 <a href="javascript:;" class="ml-2 btn btn-outline-primary btn-sm" @click="insert('contentContentStart3', '*')">插入 * 通配符</a>
                 <a href="javascript:;" class="btn btn-outline-primary btn-sm" @click="insert('contentContentStart3', '|')">插入 | 通配符</a>
               </label>
-              <textarea v-model="ruleInfo.contentContentStart3" ref="contentContentStart3" key="contentContentStart3" id="contentContentStart3" name="contentContentStart3" data-vv-as="内容正文开始3" rows="5" class="form-control"></textarea>
+              <textarea v-model="ruleInfo.contentContentStart3" key="contentContentStart3" id="contentContentStart3" name="contentContentStart3" data-vv-as="内容正文开始3" rows="5" class="form-control"></textarea>
               <small>遇到变动字符请 <span class="text-primary">插入*通配符</span>，多个条件请 <span class="text-primary">插入|通配符</span></small>
             </div>
 
@@ -334,7 +369,7 @@
                 <a href="javascript:;" class="ml-2 btn btn-outline-primary btn-sm" @click="insert('contentContentEnd3', '*')">插入 * 通配符</a>
                 <a href="javascript:;" class="btn btn-outline-primary btn-sm" @click="insert('contentContentEnd3', '|')">插入 | 通配符</a>
               </label>
-              <textarea v-model="ruleInfo.contentContentEnd3" ref="contentContentEnd3" key="contentContentEnd3" id="contentContentEnd3" name="contentContentEnd3" data-vv-as="内容正文结束3" rows="5" class="form-control"></textarea>
+              <textarea v-model="ruleInfo.contentContentEnd3" key="contentContentEnd3" id="contentContentEnd3" name="contentContentEnd3" data-vv-as="内容正文结束3" rows="5" class="form-control"></textarea>
               <small>遇到变动字符请 <span class="text-primary">插入*通配符</span>，多个条件请 <span class="text-primary">插入|通配符</span></small>
             </div>
 
@@ -344,7 +379,7 @@
                 <a href="javascript:;" class="ml-2 btn btn-outline-primary btn-sm" @click="insert('contentNextPageStart', '*')">插入 * 通配符</a>
                 <a href="javascript:;" class="btn btn-outline-primary btn-sm" @click="insert('contentNextPageStart', '|')">插入 | 通配符</a>
               </label>
-              <textarea v-model="ruleInfo.contentNextPageStart" ref="contentNextPageStart" key="contentNextPageStart" id="contentNextPageStart" name="contentNextPageStart" data-vv-as="内容下一页开始" rows="5" class="form-control"></textarea>
+              <textarea v-model="ruleInfo.contentNextPageStart" key="contentNextPageStart" id="contentNextPageStart" name="contentNextPageStart" data-vv-as="内容下一页开始" rows="5" class="form-control"></textarea>
               <small>遇到变动字符请 <span class="text-primary">插入*通配符</span>，多个条件请 <span class="text-primary">插入|通配符</span></small>
             </div>
 
@@ -354,9 +389,64 @@
                 <a href="javascript:;" class="ml-2 btn btn-outline-primary btn-sm" @click="insert('contentNextPageEnd', '*')">插入 * 通配符</a>
                 <a href="javascript:;" class="btn btn-outline-primary btn-sm" @click="insert('contentNextPageEnd', '|')">插入 | 通配符</a>
               </label>
-              <textarea v-model="ruleInfo.contentNextPageEnd" ref="contentNextPageEnd" key="contentNextPageEnd" id="contentNextPageEnd" name="contentNextPageEnd" data-vv-as="内容下一页结束" rows="5" class="form-control"></textarea>
+              <textarea v-model="ruleInfo.contentNextPageEnd" key="contentNextPageEnd" id="contentNextPageEnd" name="contentNextPageEnd" data-vv-as="内容下一页结束" rows="5" class="form-control"></textarea>
               <small>遇到变动字符请 <span class="text-primary">插入*通配符</span>，多个条件请 <span class="text-primary">插入|通配符</span></small>
             </div>
+
+          </form>
+        </template>
+
+        <template v-else-if="pageType === $typeColumns">
+          <form v-on:submit.prevent="btnSubmitClick" data-vv-scope="attributesDict">
+
+            <div class="form-group">
+              <label class="col-form-label">
+                可选采集字段
+              </label>
+              <div>
+                <span class="ml-2 checkbox checkbox-primary" v-for="attribute in attributes" :key="attribute.value">
+                  <input :id="'contentAttribute_' + attribute.value" v-model="attribute.selected" :value="attribute.value" type="checkbox">
+                  <label :for="'contentAttribute_' + attribute.value">{{ attribute.text }}</label>
+                </span>
+              </div>
+              <small>选择需要采集的可选字段</small>
+            </div>
+
+            <template v-for="attribute in attributes" v-if="attribute.selected">
+              <div class="form-group">
+                <label class="col-form-label">
+                  {{attribute.text}}开始（必填）
+                  <a href="javascript:;" class="ml-2 btn btn-outline-primary btn-sm" @click="insertDict(getStartName(attribute), '*')">插入 * 通配符</a>
+                  <a href="javascript:;" class="btn btn-outline-primary btn-sm" @click="insertDict(getStartName(attribute), '|')">插入 | 通配符</a>
+                  <small v-show="errors.has('attributesDict.' + getStartName(attribute))" class="text-danger">
+                    {{ errors.first('attributesDict.' + getStartName(attribute)) }}
+                  </small>
+                </label>
+                <textarea v-model="attributesDict[getStartName(attribute)]" :key="getStartName(attribute)" :id="getStartName(attribute)" :name="getStartName(attribute)" :data-vv-as="attribute.text + '开始'" v-validate="'required'" :class="{'is-invalid': errors.has('attributesDict.' + getStartName(attribute)) }" rows="5" class="form-control"></textarea>
+                <small>遇到变动字符请 <span class="text-primary">插入*通配符</span>，多个条件请 <span class="text-primary">插入|通配符</span></small>
+              </div>
+    
+              <div class="form-group">
+                <label class="col-form-label">
+                  {{attribute.text}}结束（必填）
+                  <a href="javascript:;" class="ml-2 btn btn-outline-primary btn-sm" @click="insertDict(getEndName(attribute), '*')">插入 * 通配符</a>
+                  <a href="javascript:;" class="btn btn-outline-primary btn-sm" @click="insertDict(getEndName(attribute), '|')">插入 | 通配符</a>
+                  <small v-show="errors.has('attributesDict.' + getEndName(attribute))" class="text-danger">
+                    {{ errors.first('attributesDict.' + getEndName(attribute)) }}
+                  </small>
+                </label>
+                <textarea v-model="attributesDict[getEndName(attribute)]" :key="getEndName(attribute)" :id="getEndName(attribute)" :name="getEndName(attribute)" :data-vv-as="attribute.text + '结束'" v-validate="'required'" :class="{'is-invalid': errors.has('attributesDict.' + getEndName(attribute)) }" rows="5" class="form-control"></textarea>
+                <small>遇到变动字符请 <span class="text-primary">插入*通配符</span>，多个条件请 <span class="text-primary">插入|通配符</span></small>
+              </div>
+
+              <div class="form-group">
+                <label class="col-form-label">
+                  {{attribute.text}}默认值（选填）
+                </label>
+                <input type="text" v-model="attributesDict[getDefaultName(attribute)]" :key="getDefaultName(attribute)" :id="getDefaultName(attribute)" :name="getDefaultName(attribute)" class="form-control"></input>
+                <small>无匹配项时字段的默认值</small>
+              </div>
+            </template>
 
           </form>
         </template>
@@ -369,7 +459,7 @@
                 <a href="javascript:;" class="ml-2 btn btn-outline-primary btn-sm" @click="insert('titleInclude', '*')">插入 * 通配符</a>
                 <a href="javascript:;" class="btn btn-outline-primary btn-sm" @click="insert('titleInclude', '|')">插入 | 通配符</a>
               </label>
-              <input v-model="ruleInfo.titleInclude" ref="titleInclude" key="titleInclude" id="titleInclude" name="titleInclude" class="form-control" />
+              <input v-model="ruleInfo.titleInclude" key="titleInclude" id="titleInclude" name="titleInclude" class="form-control" />
               <small>限定采集内容的标题必须包含的字符串，遇到变动字符请 <span class="text-primary">插入*通配符</span>，多个条件请 <span class="text-primary">插入|通配符</span></small>
             </div>
 
@@ -379,7 +469,7 @@
                 <a href="javascript:;" class="ml-2 btn btn-outline-primary btn-sm" @click="insert('listAreaStart', '*')">插入 * 通配符</a>
                 <a href="javascript:;" class="btn btn-outline-primary btn-sm" @click="insert('listAreaStart', '|')">插入 | 通配符</a>
               </label>
-              <textarea v-model="ruleInfo.listAreaStart" ref="listAreaStart" key="listAreaStart" id="listAreaStart" name="listAreaStart" rows="5" class="form-control"></textarea>
+              <textarea v-model="ruleInfo.listAreaStart" key="listAreaStart" id="listAreaStart" name="listAreaStart" rows="5" class="form-control"></textarea>
               <small>遇到变动字符请 <span class="text-primary">插入*通配符</span>，多个条件请 <span class="text-primary">插入|通配符</span></small>
             </div>
 
@@ -389,7 +479,7 @@
                 <a href="javascript:;" class="ml-2 btn btn-outline-primary btn-sm" @click="insert('listAreaEnd', '*')">插入 * 通配符</a>
                 <a href="javascript:;" class="btn btn-outline-primary btn-sm" @click="insert('listAreaEnd', '|')">插入 | 通配符</a>
               </label>
-              <textarea v-model="ruleInfo.listAreaEnd" ref="listAreaEnd" key="listAreaEnd" id="listAreaEnd" name="listAreaEnd" rows="5" class="form-control"></textarea>
+              <textarea v-model="ruleInfo.listAreaEnd" key="listAreaEnd" id="listAreaEnd" name="listAreaEnd" rows="5" class="form-control"></textarea>
               <small>遇到变动字符请 <span class="text-primary">插入*通配符</span>，多个条件请 <span class="text-primary">插入|通配符</span></small>
             </div>
 
@@ -407,7 +497,7 @@
                 <a href="javascript:;" class="ml-2 btn btn-outline-primary btn-sm" @click="insert('contentExclude', '*')">插入 * 通配符</a>
                 <a href="javascript:;" class="btn btn-outline-primary btn-sm" @click="insert('contentExclude', '|')">插入 | 通配符</a>
               </label>
-              <textarea v-model="ruleInfo.contentExclude" ref="contentExclude" key="contentExclude" id="contentExclude" name="contentExclude" rows="5" class="form-control"></textarea>
+              <textarea v-model="ruleInfo.contentExclude" key="contentExclude" id="contentExclude" name="contentExclude" rows="5" class="form-control"></textarea>
               <small>限定采集内容的正文必须排除的字符串，遇到变动字符请 <span class="text-primary">插入*通配符</span>，多个条件请 <span class="text-primary">插入|通配符</span></small>
             </div>
 
@@ -486,47 +576,47 @@
 
                 <span class="ml-2 checkbox checkbox-primary">
                   <input id="contentHtmlClearTagList_a" v-model="contentHtmlClearTagList" value="a" type="checkbox">
-                  <label for="contentHtmlClearTagList_a">链接&amp;lt;a</label>
+                  <label for="contentHtmlClearTagList_a">链接&lt;a</label>
                 </span>
                 
                 <span class="ml-2 checkbox checkbox-primary">
                   <input id="contentHtmlClearTagList_table" v-model="contentHtmlClearTagList" value="table" type="checkbox">
-                  <label for="contentHtmlClearTagList_table">表格&amp;lt;table</label>
+                  <label for="contentHtmlClearTagList_table">表格&lt;table</label>
                 </span>
                 
                 <span class="ml-2 checkbox checkbox-primary">
                   <input id="contentHtmlClearTagList_tbody" v-model="contentHtmlClearTagList" value="tbody" type="checkbox">
-                  <label for="contentHtmlClearTagList_tbody">表格体&amp;lt;tbody</label>
+                  <label for="contentHtmlClearTagList_tbody">表格体&lt;tbody</label>
                 </span>
                 
                 <span class="ml-2 checkbox checkbox-primary">
                   <input id="contentHtmlClearTagList_tr" v-model="contentHtmlClearTagList" value="tr" type="checkbox">
-                  <label for="contentHtmlClearTagList_tr">表格行&amp;lt;tr</label>
+                  <label for="contentHtmlClearTagList_tr">表格行&lt;tr</label>
                 </span>
                 
                 <span class="ml-2 checkbox checkbox-primary">
                   <input id="contentHtmlClearTagList_td" v-model="contentHtmlClearTagList" value="td" type="checkbox">
-                  <label for="contentHtmlClearTagList_td">单元&amp;lt;td</label>
+                  <label for="contentHtmlClearTagList_td">单元&lt;td</label>
                 </span>
                 
                 <span class="ml-2 checkbox checkbox-primary">
                   <input id="contentHtmlClearTagList_p" v-model="contentHtmlClearTagList" value="p" type="checkbox">
-                  <label for="contentHtmlClearTagList_p">段落&amp;lt;p</label>
+                  <label for="contentHtmlClearTagList_p">段落&lt;p</label>
                 </span>
                 
                 <span class="ml-2 checkbox checkbox-primary">
                   <input id="contentHtmlClearTagList_font" v-model="contentHtmlClearTagList" value="font" type="checkbox">
-                  <label for="contentHtmlClearTagList_font">字体&amp;lt;font</label>
+                  <label for="contentHtmlClearTagList_font">字体&lt;font</label>
                 </span>
                 
                 <span class="ml-2 checkbox checkbox-primary">
                   <input id="contentHtmlClearTagList_div" v-model="contentHtmlClearTagList" value="div" type="checkbox">
-                  <label for="contentHtmlClearTagList_div">层&amp;lt;div</label>
+                  <label for="contentHtmlClearTagList_div">层&lt;div</label>
                 </span>
                 
                 <span class="ml-2 checkbox checkbox-primary">
                   <input id="contentHtmlClearTagList_span" v-model="contentHtmlClearTagList" value="span" type="checkbox">
-                  <label for="contentHtmlClearTagList_span">SPAN&amp;lt;span</label>
+                  <label for="contentHtmlClearTagList_span">SPAN&lt;span</label>
                 </span>
                 
               </div>
@@ -555,7 +645,7 @@
                 <a href="javascript:;" class="ml-2 btn btn-outline-primary btn-sm" @click="insert('contentChannelStart', '*')">插入 * 通配符</a>
                 <a href="javascript:;" class="btn btn-outline-primary btn-sm" @click="insert('contentChannelStart', '|')">插入 | 通配符</a>
               </label>
-              <textarea v-model="ruleInfo.contentChannelStart" ref="contentChannelStart" key="contentChannelStart" id="contentChannelStart" name="contentChannelStart" rows="5" class="form-control"></textarea>
+              <textarea v-model="ruleInfo.contentChannelStart" key="contentChannelStart" id="contentChannelStart" name="contentChannelStart" rows="5" class="form-control"></textarea>
               <small>限定采集内容的正文必须排除的字符串，遇到变动字符请 <span class="text-primary">插入*通配符</span>，多个条件请 <span class="text-primary">插入|通配符</span></small>
             </div>
 
@@ -565,7 +655,7 @@
                 <a href="javascript:;" class="ml-2 btn btn-outline-primary btn-sm" @click="insert('contentChannelEnd', '*')">插入 * 通配符</a>
                 <a href="javascript:;" class="btn btn-outline-primary btn-sm" @click="insert('contentChannelEnd', '|')">插入 | 通配符</a>
               </label>
-              <textarea v-model="ruleInfo.contentChannelEnd" ref="contentChannelEnd" key="contentChannelEnd" id="contentChannelEnd" name="contentChannelEnd" rows="5" class="form-control"></textarea>
+              <textarea v-model="ruleInfo.contentChannelEnd" key="contentChannelEnd" id="contentChannelEnd" name="contentChannelEnd" rows="5" class="form-control"></textarea>
               <small>限定采集内容的正文必须排除的字符串，遇到变动字符请 <span class="text-primary">插入*通配符</span>，多个条件请 <span class="text-primary">插入|通配符</span></small>
             </div>
 

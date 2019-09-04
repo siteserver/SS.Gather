@@ -60,6 +60,12 @@ namespace SS.Gather.Core
             return Regex.IsMatch(val, formatDate) || Regex.IsMatch(val, formatDateTime);
         }
 
+        public static bool IsHttpUrl(string val)
+        {
+            return Uri.TryCreate(val, UriKind.Absolute, out var uriResult)
+                          && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
+        }
+
         public static bool In(string strCollection, int inInt)
         {
             return In(strCollection, inInt.ToString());
@@ -252,6 +258,7 @@ namespace SS.Gather.Core
 
         public static string ReplaceFirst(string replace, string input, string to)
         {
+            if (string.IsNullOrEmpty(input)) return input;
             var pos = input.IndexOf(replace, StringComparison.Ordinal);
             if (pos > 0)
             {

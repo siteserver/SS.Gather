@@ -21,8 +21,10 @@
   </PropertyGroup>
 
     <ItemGroup>
+    <PackageReference Include="ExcelDataReader.DataSet" Version="3.6.0" />
     <PackageReference Include="Microsoft.AspNet.WebApi.Core" Version="5.2.7" />
-    <PackageReference Include="SiteServer.Plugin" Version="2.3.11" />
+    <PackageReference Include="NDesk.Options" Version="0.2.1" />
+    <PackageReference Include="SiteServer.Plugin" Version="2.3.13" />
     <PackageReference Include="System.Runtime.Caching" Version="4.5.0" />
   </ItemGroup>
 
@@ -33,6 +35,10 @@
 
   <ItemGroup>
     <Reference Include="System.Web" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Cli\" />
   </ItemGroup>
 
 </Project>

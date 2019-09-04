@@ -7,8 +7,27 @@ namespace SS.Gather.Core
 {
     public class WebClientUtils
     {
+        public static bool GetRemoteHtml(string url, ECharset charset, string cookieString, out string content, out string errorMessage)
+        {
+            content = string.Empty;
+            errorMessage = string.Empty;
+            for (var i = 0; i < 2; i++)
+            {
+                try
+                {
+                    content = GetRemoteFileSource(url, charset, cookieString);
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    errorMessage = ex.Message;
+                }
+            }
+            return false;
+        }
+
         // 获取指定网页的HTML代码
-        public static string GetRemoteFileSource(string url, ECharset charset, string cookieString)
+        private static string GetRemoteFileSource(string url, ECharset charset, string cookieString)
         {
             try
             {

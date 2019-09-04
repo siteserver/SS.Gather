@@ -82,8 +82,10 @@ var methods = {
   },
 
   btnGetContent: function(url) {
-    this.pageAlert = null;
-    this.apiGetContent(url);
+    utils.openLayer({
+      url: utils.getPageUrl('rulesLayerTestAttributes.html') + '&siteId=' + utils.getQueryInt('siteId') + '&ruleId=' + utils.getQueryInt('ruleId') + '&url=' + encodeURIComponent(url),
+      title: '测试采集页面'
+    });
   },
 
   btnCancelClick: function () {

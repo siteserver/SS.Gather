@@ -6,6 +6,7 @@ var $api = axios.create({
 var $typeBase = 'Base';
 var $typeList = 'List';
 var $typeContent = 'Content';
+var $typeColumns = 'Columns';
 var $typeAdvanced = 'Advanced';
 var $typeDone = 'Done';
 
@@ -15,51 +16,60 @@ var data = {
   pageLoad: false,
   pageAlert: null,
   pageType: null,
-  pageProgress: '',
   ruleInfo: null,
-  contentHtmlClearList: null,
-  contentHtmlClearTagList: null,
-  channels: null,
-  charsets: null,
+  channels: [],
+  charsets: [],
+  contentHtmlClearList: [],
+  contentHtmlClearTagList: [],
+  attributes: [],
+  attributesDict: {}
 };
 
 var methods = {
   insert: function(ref, text) {
-    var tArea = this.$refs[ref];
+    var tArea = document.getElementById(ref);
     var startPos = tArea.selectionStart;
     var endPos = tArea.selectionEnd;
     var tmpStr = this.ruleInfo[ref] || '';
     this.ruleInfo[ref] = tmpStr.substring(0, startPos) + text + tmpStr.substring(endPos, tmpStr.length);
   },
 
+  insertDict: function(ref, text) {
+    var tArea = document.getElementById(ref);
+    var startPos = tArea.selectionStart;
+    var endPos = tArea.selectionEnd;
+    var tmpStr = this.attributesDict[ref] || '';
+    this.attributesDict[ref] = tmpStr.substring(0, startPos) + text + tmpStr.substring(endPos, tmpStr.length);
+  },
+
   setState: function(pageType) {
     this.pageType = pageType;
     if (this.pageType === $typeBase) {
-      this.pageProgress =  ''
       this.pageAlert = {
-        type: 'primary',
+        type: 'success',
         html: '在此设置采集基本属性'
       }
     } else if (this.pageType === $typeList) {
-      this.pageProgress = '25%';
       this.pageAlert = {
-        type: 'primary',
+        type: 'success',
         html: '在此设置需要采集的列表页面地址'
       }
     } else if (this.pageType === $typeContent) {
-      this.pageProgress = '50%';
       this.pageAlert = {
-        type: 'primary',
-        html: '在此设置需要采集的内容页面规则'
+        type: 'success',
+        html: '在此设置需要采集的内容页面标题及正文规则'
+      }
+    } else if (this.pageType === $typeColumns) {
+      this.pageAlert = {
+        type: 'success',
+        html: '在此设置需要采集的内容页面可选字段规则'
       }
     } else if (this.pageType === $typeAdvanced) {
-      this.pageProgress = '75%';
       this.pageAlert = {
-        type: 'primary',
-        html: '在此设置采集高级配置，没有特殊规则可以直接点击下一步'
+        type: 'success',
+        html: '在此设置采集高级选项，没有特殊规则可以直接点击下一步'
       }
     } else if (this.pageType === $typeDone) {
-      this.pageProgress = '100%';
       this.pageAlert = null;
     }
     utils.up();
@@ -81,6 +91,7 @@ var methods = {
       $this.charsets = res.charsets;
       $this.contentHtmlClearList = res.contentHtmlClearList;
       $this.contentHtmlClearTagList = res.contentHtmlClearTagList;
+      $this.attributesDict = res.attributesDict;
 
       $this.setState($typeBase);
     }).catch(function (error) {
@@ -90,15 +101,50 @@ var methods = {
     });
   },
 
+  apiGetAttributes: function () {
+    var $this = this;
+
+    utils.loading(true);
+    $api.get('attributes', {
+      params: {
+        siteId: $this.siteId,
+        channelId: $this.ruleInfo.channelId,
+        ruleId: $this.ruleId
+      }
+    }).then(function (response) {
+      var res = response.data;
+
+      $this.attributes = res.value;
+
+      $this.setState($typeColumns);
+    }).catch(function (error) {
+      $this.pageAlert = utils.getPageAlert(error);
+    }).then(function () {
+      utils.loading(false);
+    });
+  },
+
   apiSubmit: function () {
     var $this = this;
 
     utils.loading(true);
-    $api.post('?siteId=' + this.siteId, {
+    
+    var contentAttributeList = [];
+    for (var i = 0; i < this.attributes.length; i++) {
+      var attribute = this.attributes[i];
+      if (attribute.selected) {
+        contentAttributeList.push(attribute.value);
+      }
+    }
+    var payload = {
       ruleInfo: this.ruleInfo,
       contentHtmlClearList: this.contentHtmlClearList,
       contentHtmlClearTagList: this.contentHtmlClearTagList,
-    }).then(function (response) {
+      contentAttributeList: contentAttributeList,
+      attributesDict: this.attributesDict
+    };
+
+    $api.post('?siteId=' + this.siteId, payload).then(function (response) {
       var res = response.data;
 
       $this.setState($typeDone);
@@ -113,16 +159,28 @@ var methods = {
     });
   },
 
+  getStartName: function(attribute) {
+    return (attribute.value + '_start').toLowerCase();
+  },
+
+  getEndName: function(attribute) {
+    return (attribute.value + '_end').toLowerCase();
+  },
+
+  getDefaultName: function(attribute) {
+    return (attribute.value + '_default').toLowerCase();
+  },
+
   btnPreviousClick: function () {
     var pageType = '';
     if (this.pageType === $typeList) {
       pageType = $typeBase;
     } else if (this.pageType === $typeContent) {
       pageType = $typeList;
-    } else if (this.pageType === $typeAdvanced) {
+    } else if (this.pageType === $typeColumns) {
       pageType = $typeContent;
-    } else if (this.pageType === $typeDone) {
-      pageType = $typeAdvanced;
+    } else if (this.pageType === $typeAdvanced) {
+      pageType = $typeColumns;
     }
     this.setState(pageType);
   },
@@ -143,6 +201,9 @@ var methods = {
           }
           pageType = $typeContent;
         } else if ($this.pageType === $typeContent) {
+          $this.apiGetAttributes();
+          return;
+        } else if ($this.pageType === $typeColumns) {
           pageType = $typeAdvanced;
         } else if ($this.pageType === $typeAdvanced) {
           $this.apiSubmit();

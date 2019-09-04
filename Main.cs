@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using SiteServer.Plugin;
+using SS.Gather.Cli;
 using SS.Gather.Core;
 
 namespace SS.Gather
@@ -33,6 +34,7 @@ namespace SS.Gather
                     }
                 })
                 .AddDatabaseTable(GatherRuleRepository.TableName, GatherRuleRepository.TableColumns)
+                .AddJob(GatherJob.CommandName, GatherJob.Execute)
                 ;
         }
     }
